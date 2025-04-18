@@ -1,4 +1,4 @@
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Copy, Clone)]
 pub enum FileFormatWriteVersion {
     Legacy,
     Wal,
@@ -23,7 +23,7 @@ impl From<FileFormatWriteVersion> for u8 {
     }
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Copy, Clone)]
 pub enum FileFormatReadVersion {
     Legacy,
     Wal,
