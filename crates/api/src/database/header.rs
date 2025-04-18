@@ -33,11 +33,47 @@ fn write_file_format_read_version(
     Ok(())
 }
 
-const WRITERS: [HeaderFieldWriter; 4] = [
+fn write_page_reserved_space(
+    header: &SqliteHeader,
+    bytes: &mut BytesMut,
+) -> Result<(), SqliteError> {
+    bytes.put_u8(header.page_reserved_space);
+    Ok(())
+}
+
+fn write_max_embedded_payload_fraction(
+    header: &SqliteHeader,
+    bytes: &mut BytesMut,
+) -> Result<(), SqliteError> {
+    bytes.put_u8(header.max_embedded_payload_fraction);
+    Ok(())
+}
+
+fn write_min_embedded_payload_fraction(
+    header: &SqliteHeader,
+    bytes: &mut BytesMut,
+) -> Result<(), SqliteError> {
+    bytes.put_u8(header.min_embedded_payload_fraction);
+    Ok(())
+}
+
+fn write_leaf_payload_fraction(
+    header: &SqliteHeader,
+    bytes: &mut BytesMut,
+) -> Result<(), SqliteError> {
+    bytes.put_u8(header.leaf_payload_fraction);
+    Ok(())
+}
+
+const WRITERS: [HeaderFieldWriter; 8] = [
     write_header_string,
     write_page_size,
     write_file_format_write_version,
     write_file_format_read_version,
+    write_page_reserved_space,
+    write_max_embedded_payload_fraction,
+    write_min_embedded_payload_fraction,
+    write_leaf_payload_fraction,
 ];
 
 /// Represents the header section of the database per https://sqlite.org/fileformat2.html
@@ -47,6 +83,10 @@ pub struct SqliteHeader {
     page_size: PageSize,
     file_format_write_version: FileFormatWriteVersion,
     file_format_read_version: FileFormatReadVersion,
+    page_reserved_space: u8,
+    max_embedded_payload_fraction: u8,
+    min_embedded_payload_fraction: u8,
+    leaf_payload_fraction: u8,
 }
 
 impl SqliteHeader {
@@ -78,6 +118,10 @@ mod tests {
             page_size: PageSize::Size512,
             file_format_write_version: FileFormatWriteVersion::Legacy,
             file_format_read_version: FileFormatReadVersion::Legacy,
+            page_reserved_space: 0,
+            max_embedded_payload_fraction: 64,
+            min_embedded_payload_fraction: 32,
+            leaf_payload_fraction: 32,
         }
     }
 
@@ -137,7 +181,7 @@ mod tests {
         let header = test_header();
         let mut buf: BytesMut = BytesMut::with_capacity(100);
         let result = header.write(&mut buf);
-        let expected_buf_capacity = 20;
+        let expected_buf_capacity = 24;
         assert!(result.is_ok());
         assert_eq!(buf.len(), expected_buf_capacity);
     }
