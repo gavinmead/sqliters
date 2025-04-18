@@ -4,7 +4,7 @@ resolver = "2"
 
 [workspace.package]
 authors = ["Gavin Mead <gavin.w.mead@gmail.com>"]
-rust-version = "1.81"
+rust-version = "1.86"
 readme = "README.md"
 edition = "2021"
 license = "Apache-2.0"
