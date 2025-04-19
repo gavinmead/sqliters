@@ -73,7 +73,12 @@ fn write_file_change_counter(
     Ok(())
 }
 
-const WRITERS: [HeaderFieldWriter; 9] = [
+fn write_size_in_pages(header: &SqliteHeader, bytes: &mut BytesMut) -> Result<(), SqliteError> {
+    bytes.put_u32(header.size_in_pages);
+    Ok(())
+}
+
+const WRITERS: [HeaderFieldWriter; 10] = [
     write_header_string,
     write_page_size,
     write_file_format_write_version,
@@ -83,6 +88,7 @@ const WRITERS: [HeaderFieldWriter; 9] = [
     write_min_embedded_payload_fraction,
     write_leaf_payload_fraction,
     write_file_change_counter,
+    write_size_in_pages,
 ];
 
 /// Represents the header section of the database per https://sqlite.org/fileformat2.html
@@ -97,6 +103,7 @@ pub struct SqliteHeader {
     min_embedded_payload_fraction: u8,
     leaf_payload_fraction: u8,
     file_change_counter: u32,
+    size_in_pages: u32,
 }
 
 impl SqliteHeader {
@@ -133,6 +140,7 @@ mod tests {
             min_embedded_payload_fraction: 32,
             leaf_payload_fraction: 32,
             file_change_counter: 0,
+            size_in_pages: 1,
         }
     }
 
@@ -192,7 +200,7 @@ mod tests {
         let header = test_header();
         let mut buf: BytesMut = BytesMut::with_capacity(100);
         let result = header.write(&mut buf);
-        let expected_buf_capacity = 28;
+        let expected_buf_capacity = 32;
         assert!(result.is_ok());
         assert_eq!(buf.len(), expected_buf_capacity);
     }
