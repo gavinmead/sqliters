@@ -1,3 +1,4 @@
+mod connection;
 mod database;
 pub mod errors;
 
