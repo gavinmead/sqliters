@@ -1,7 +1,18 @@
-// pub enum CacheType {
-//     Shared,
-//     Private,
-// }
+#[derive(Clone, Debug, PartialEq)]
+pub enum CacheType {
+    Shared,
+    Private,
+}
+
+impl From<&str> for CacheType {
+    fn from(value: &str) -> Self {
+        match value.to_lowercase().as_str() {
+            "shared" => CacheType::Shared,
+            "private" => CacheType::Private,
+            _ => panic!("invalid cache_type: {}", value),
+        }
+    }
+}
 
 #[derive(Clone, Debug, PartialEq)]
 pub enum Mode {
@@ -63,5 +74,27 @@ mod tests {
     #[should_panic(expected = "invalid mode: will_fail")]
     fn mode_from_str_fail() {
         let _mode = Mode::from("will_fail");
+    }
+
+    #[test]
+    fn cache_type_from_str() {
+        let cases: Vec<(&str, CacheType)> = vec![
+            ("shared", CacheType::Shared),
+            ("SHARED", CacheType::Shared),
+            ("sHaReD", CacheType::Shared),
+            ("private", CacheType::Private),
+            ("PRIVATE", CacheType::Private),
+            ("pRiVaTe", CacheType::Private),
+        ];
+        for case in cases {
+            let ct: CacheType = CacheType::from(case.0);
+            assert_eq!(ct, case.1);
+        }
+    }
+
+    #[test]
+    #[should_panic(expected = "invalid cache_type: will_fail")]
+    fn cache_type_fail() {
+        let _ct = CacheType::from("will_fail");
     }
 }
