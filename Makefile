@@ -76,3 +76,8 @@ cov:
 	open tarpaulin-report.html
 
 pre-commit: fmt fmt-check lint test
+
+sync-main:
+	git checkout main
+	git fetch origin
+	git rebase origin/main
